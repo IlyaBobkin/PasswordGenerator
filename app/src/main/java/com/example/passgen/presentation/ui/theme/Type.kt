@@ -1,4 +1,4 @@
-package com.example.passgen.ui.theme
+package com.example.passgen.presentation.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
