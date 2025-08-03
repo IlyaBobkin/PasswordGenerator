@@ -30,7 +30,7 @@ fun MainScreen()
         modifier = Modifier.fillMaxSize()
     ) {
         Text(
-            text = "Hello!",
+            text = "Hello World!",
         )
     }
 }
