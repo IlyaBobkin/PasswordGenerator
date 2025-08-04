@@ -1,4 +1,3 @@
-🔐 PassGen - Генератор паролей
 # <img src="https://github.com/user-attachments/assets/b30bff0e-37fc-436a-864f-e8335724e861" width="40" height="40" alt="Logo"/> PassGen - Генератор паролей
 
 [![Kotlin Version](https://img.shields.io/badge/Kotlin-1.9.0-blue.svg)](https://kotlinlang.org)
