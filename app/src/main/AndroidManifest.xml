@@ -3,18 +3,18 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application
-        android:name=".di.PassGenApp"
+        android:name=".PassGenApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/key"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/key"
         android:supportsRtl="true"
         android:theme="@style/Theme.PassGen"
         tools:targetApi="31">
         <activity
-            android:name=".presentation.ui.MainActivity"
+            android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.PassGen">

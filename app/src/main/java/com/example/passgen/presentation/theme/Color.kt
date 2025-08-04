@@ -1,4 +1,4 @@
-package com.example.passgen.presentation.ui.theme
+package com.example.passgen.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 
