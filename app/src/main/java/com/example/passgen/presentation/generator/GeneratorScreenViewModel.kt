@@ -83,7 +83,7 @@ class GeneratorScreenViewModel @Inject constructor(
                 ?.map { line ->
                     Password(
                         value = line.trim(),
-                        entropy = 0.0, // не считаем
+                        entropy = 0.0,
                         charset = "",
                         isFromFile = true,
                         filePath = fileName,
