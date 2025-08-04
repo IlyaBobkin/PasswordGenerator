@@ -2,6 +2,7 @@ package com.example.passgen.presentation.passwordlist
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -19,6 +20,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -40,7 +42,10 @@ fun PasswordListScreen(
         }
     }
 
+
     val expandedGroups = remember { mutableStateOf(setOf<String>()) }
+    val generatedPasswords = passwords.filter { it.filePath.isNullOrBlank() }
+    val groupedPasswords = passwords.filter { !it.filePath.isNullOrBlank() }.groupBy { it.filePath!! }
 
     Scaffold(
         topBar = { TopAppBar(title = { Text("Ваши пароли") }) },
@@ -64,39 +69,36 @@ fun PasswordListScreen(
                 modifier = Modifier
                     .padding(paddingValues)
                     .padding(8.dp)
-                    .border(1.dp, Color.LightGray, RoundedCornerShape(10.dp))
                     .padding(6.dp)
             ) {
-                val grouped = passwords.groupBy { it.filePath ?: "Сгенерированные" }
-
-                grouped.forEach { (group, passwordsInGroup) ->
+                // Папки
+                groupedPasswords.forEach { (group, passwordsInGroup) ->
                     val isExpanded = expandedGroups.value.contains(group)
-
+                    item{
+                        Text("Папки:", fontSize = 20.sp)
+                        Spacer(modifier = Modifier.padding(top = 15.dp))
+                    }
                     item {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 8.dp)
+                                .background(Color.LightGray, shape = RoundedCornerShape(10.dp))
                                 .clickable {
                                     expandedGroups.value = if (isExpanded) {
                                         expandedGroups.value - group
                                     } else {
                                         expandedGroups.value + group
                                     }
-                                },
+                                }                                .padding(vertical = 8.dp)
+                            ,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically)
-                            {
-                                Text(
-                                    text = if (isExpanded) "▼ $group" else "▶ $group",
-                                    fontSize = 20.sp,
-                                )
-                                if (group != "Сгенерированные")
-                                {
-                                    Icon(Icons.Default.Folder, contentDescription = "Папка", modifier = Modifier.padding(start = 10.dp))
-                                }
-                            }
+                            Text(
+                                text = if (isExpanded) "▼ $group" else "▶ $group",
+                                fontSize = 20.sp,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Icon(Icons.Default.Folder, contentDescription = "Папка")
 
                             IconButton(onClick = {
                                 viewModel.setCurrentGroup(group)
@@ -105,6 +107,7 @@ fun PasswordListScreen(
                                 Icon(Icons.Default.Share, contentDescription = "Выгрузить")
                             }
                         }
+                        Spacer(modifier = Modifier.padding(bottom = 5.dp))
                     }
 
                     if (isExpanded) {
@@ -113,7 +116,7 @@ fun PasswordListScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 5.dp, vertical = 4.dp),
-                                elevation = CardDefaults.cardElevation(4.dp)
+                                elevation = CardDefaults.cardElevation(4.dp),
                             ) {
                                 Column(modifier = Modifier.padding(16.dp)) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -131,12 +134,45 @@ fun PasswordListScreen(
                                             }
                                         }
                                     }
+                                }
+                            }
+                        }
+                    }
+                }
 
-                                    if (group == "Сгенерированные") {
-                                        Text("Энтропия: ${"%.2f".format(password.entropy)}", fontSize = 14.sp)
-                                        Text("Набор символов: ${password.charset}", fontSize = 14.sp)
+                // Сгенерированные пароли
+                if (generatedPasswords.isNotEmpty()) {
+                    item{
+                        Spacer(modifier = Modifier.padding(top = 15.dp))
+                        Text("Сгенерированные пароли:", fontSize = 20.sp)
+                        Spacer(modifier = Modifier.padding(top = 15.dp))
+                    }
+                    items(generatedPasswords) { password ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 5.dp, vertical = 4.dp),
+                            elevation = CardDefaults.cardElevation(4.dp)
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text("Пароль: ${password.value}", modifier = Modifier.weight(1f))
+                                    Row {
+                                        IconButton(onClick = {
+                                            viewModel.copyToClipboard(context, password.value)
+                                        }) {
+                                            Icon(Icons.Default.ContentCopy, contentDescription = "Копировать")
+                                        }
+                                        IconButton(onClick = {
+                                            viewModel.deletePassword(password)
+                                        }) {
+                                            Icon(Icons.Default.Delete, contentDescription = "Удалить")
+                                        }
                                     }
                                 }
+
+                                Text("Энтропия: ${"%.2f".format(password.entropy)}", fontSize = 14.sp)
+                                Text("Набор символов: ${password.charset}", fontSize = 14.sp)
                             }
                         }
                     }

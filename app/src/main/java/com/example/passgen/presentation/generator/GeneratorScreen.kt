@@ -2,26 +2,16 @@ package com.example.passgen.presentation.generator
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Slider
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
@@ -30,8 +20,8 @@ import androidx.navigation.NavController
 fun GeneratorScreen(viewModel: GeneratorScreenViewModel, navController: NavController) {
     val password = viewModel.generatedPassword
     val entropy = viewModel.entropy
-
     val context = LocalContext.current
+
     val filePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument(),
         onResult = { uri ->
@@ -39,24 +29,49 @@ fun GeneratorScreen(viewModel: GeneratorScreenViewModel, navController: NavContr
         }
     )
 
-    Scaffold(
-        topBar = { TopAppBar(title = {Text("Сгенерировать пароль")}, navigationIcon = {
-            IconButton(onClick = { navController.navigateUp() }) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+    var customSymbolsText by remember { mutableStateOf(TextFieldValue("")) }
+    val saveCompleted by viewModel.saveCompleted.collectAsState()
+
+
+    LaunchedEffect(saveCompleted) {
+        if (saveCompleted) {
+
+            navController.previousBackStackEntry?.savedStateHandle?.set("refresh", true)
+
+            navController.navigate("passwordlist") {
+                popUpTo("generator") { inclusive = true }
             }
-        })}
+            viewModel.resetSaveCompleted()
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Сгенерировать пароль") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                }
+            )
+        },
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(15.dp)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Button(onClick = { filePicker.launch(arrayOf("text/plain")) }) {
-                Text("Загрузить из файла")
+            Button(
+                onClick = { filePicker.launch(arrayOf("text/plain")) },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Загрузить пароли из файла")
             }
-            Spacer(modifier = Modifier.padding(top = 10.dp))
-            Text("Длина: ${viewModel.length}")
+
+            Text("Длина пароля: ${viewModel.length}")
             Slider(
                 value = viewModel.length.toFloat(),
                 onValueChange = { viewModel.length = it.toInt() },
@@ -78,21 +93,35 @@ fun GeneratorScreen(viewModel: GeneratorScreenViewModel, navController: NavContr
                 Text("Символы")
             }
 
+            OutlinedTextField(
+                value = customSymbolsText,
+                onValueChange = {
+                    customSymbolsText = it
+                    viewModel.customSymbols = it.text
+                },
+                label = { Text("Свои символы (необязательно)") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp)
+            )
+
             Button(
                 onClick = { viewModel.generate() },
-                modifier = Modifier.padding(vertical = 8.dp),
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Сгенерировать")
             }
 
-            Text("Пароль: $password")
-            Text("Энтропия: ${"%.2f".format(entropy)}")
+            if (password.isNotEmpty()) {
+                Text("Пароль: $password", style = MaterialTheme.typography.bodyLarge)
+                Text("Энтропия: ${"%.2f".format(entropy)}", style = MaterialTheme.typography.bodySmall)
 
-            Button(enabled = password.isNotEmpty(), onClick = { viewModel.savePassword() }) {
-                Text("Сохранить")
+                Button(
+                    onClick = { viewModel.savePassword() },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Сохранить")
+                }
             }
         }
     }
-
-
 }

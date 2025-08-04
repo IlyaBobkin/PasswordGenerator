@@ -33,6 +33,11 @@ class GeneratorScreenViewModel @Inject constructor(
     var generatedPassword by mutableStateOf("")
     var entropy by mutableDoubleStateOf(0.0)
     var charsetUsed by mutableStateOf("")
+    var customSymbols: String by mutableStateOf("")
+    private val _saveCompleted = MutableStateFlow(false)
+    val saveCompleted: StateFlow<Boolean> = _saveCompleted
+
+
 
     fun generate() {
         val charset = buildCharset()
@@ -49,12 +54,13 @@ class GeneratorScreenViewModel @Inject constructor(
                     value = generatedPassword,
                     entropy = entropy,
                     charset = charsetUsed,
-                    id = 0, // 0, т.к. Room сгенерирует id автоматически
+                    id = 0,
                     createdAt = System.currentTimeMillis(),
-                    isFromFile = false, // сгенерированный пароль
+                    isFromFile = false,
                     filePath = null
                 )
             )
+            _saveCompleted.value = true
         }
     }
 
@@ -63,6 +69,7 @@ class GeneratorScreenViewModel @Inject constructor(
         if (useLetters) chars += "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
         if (useDigits) chars += "0123456789"
         if (useSymbols) chars += "!@#\$%^&*()-_=+[]{};:,.<>/?"
+        chars += customSymbols
         return chars.ifEmpty { "abc" }
     }
 
@@ -86,6 +93,7 @@ class GeneratorScreenViewModel @Inject constructor(
                 } ?: emptyList()
 
             passwords.forEach { savePasswordUseCase(it) }
+            _saveCompleted.value = true
         }
     }
     fun getFileName(context: Context, uri: Uri): String? {
@@ -95,5 +103,8 @@ class GeneratorScreenViewModel @Inject constructor(
         val name = if (nameIndex >= 0) cursor?.getString(nameIndex) else null
         cursor?.close()
         return name
+    }
+    fun resetSaveCompleted() {
+        _saveCompleted.value = false
     }
 }
