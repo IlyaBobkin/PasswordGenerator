@@ -1,5 +1,7 @@
 package com.example.passgen.presentation.generator
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,12 +13,24 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun GeneratorScreen(viewModel: GeneratorScreenViewModel) {
     val password = viewModel.generatedPassword
     val entropy = viewModel.entropy
+
+    val context = LocalContext.current
+    val filePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+        onResult = { uri ->
+            uri?.let { viewModel.importPasswords(context, it) }
+        }
+    )
+    Button(onClick = { filePicker.launch(arrayOf("text/plain")) }) {
+        Text("Загрузить из файла")
+    }
 
     Column(
         modifier = Modifier
