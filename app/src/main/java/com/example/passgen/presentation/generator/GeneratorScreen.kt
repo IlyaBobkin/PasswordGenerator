@@ -88,7 +88,7 @@ fun GeneratorScreen(viewModel: GeneratorScreenViewModel, navController: NavContr
             Text("Пароль: $password")
             Text("Энтропия: ${"%.2f".format(entropy)}")
 
-            Button(onClick = { viewModel.savePassword() }) {
+            Button(enabled = password.isNotEmpty(), onClick = { viewModel.savePassword() }) {
                 Text("Сохранить")
             }
         }
