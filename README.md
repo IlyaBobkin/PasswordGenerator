@@ -25,3 +25,10 @@
 - **DI**: Hilt
 - **База данных**: Room
 - **UI**: Jetpack Compose
+
+## 🖥 Скриншоты
+
+<div align="center">
+  <img width="1080" height="2400" alt="image" src="https://github.com/user-attachments/assets/4b34820a-fe12-4177-9fa7-7f5d8eadae07" />
+  <img width="1080" height="2400" alt="image" src="https://github.com/user-attachments/assets/65d6aafa-41e7-4b2f-b221-6264eabd6d15" />
+</div>
