@@ -107,7 +107,6 @@ fun PasswordListScreen(
                                 Icon(Icons.Default.Share, contentDescription = "Выгрузить")
                             }
                         }
-                        Spacer(modifier = Modifier.padding(bottom = 5.dp))
                     }
 
                     if (isExpanded) {
@@ -144,8 +143,23 @@ fun PasswordListScreen(
                 if (generatedPasswords.isNotEmpty()) {
                     item{
                         Spacer(modifier = Modifier.padding(top = 15.dp))
-                        Text("Сгенерированные пароли:", fontSize = 20.sp)
-                        Spacer(modifier = Modifier.padding(top = 15.dp))
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Сгенерированные пароли:",
+                                fontSize = 20.sp,
+                                modifier = Modifier.weight(1f)
+                            )
+                            IconButton(onClick = {
+                                viewModel.setCurrentGroup("__generated__")
+                                launcher.launch("generated_passwords_export.txt")
+                            }) {
+                                Icon(Icons.Default.Share, contentDescription = "Выгрузить")
+                            }
+                        }
                     }
                     items(generatedPasswords) { password ->
                         Card(

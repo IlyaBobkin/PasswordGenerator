@@ -41,25 +41,17 @@ class PasswordListViewModel @Inject constructor(
     }
 
     fun exportPasswords(context: Context, uri: Uri) {
-        val group = currentGroup ?: return
-        val listToExport = passwords.value.filter {
-            val groupKey = it.filePath ?: "Сгенерированные"
-            groupKey == group
-        }
-
-        fun exportPasswords(context: Context, uri: Uri, group: String) {
-            val toExport = passwords.value.filter {
-                if (group == "Сгенерированные") {
-                    it.filePath == null
-                } else {
-                    it.filePath == group
-                }
+        viewModelScope.launch {
+            val passwordsToExport = if (currentGroup == "__generated__") {
+                passwords.value.filter { it.filePath.isNullOrBlank() }
+            } else {
+                passwords.value.filter { it.filePath == currentGroup }
             }
 
-            context.contentResolver.openOutputStream(uri)?.bufferedWriter()?.use { writer ->
-                toExport.forEach { pw ->
-                    writer.write("${pw.value} | ${"%.2f".format(pw.entropy)} | ${pw.charset}\n")
-                }
+            val content = passwordsToExport.joinToString("\n") { it.value }
+
+            context.contentResolver.openOutputStream(uri)?.use { outputStream ->
+                outputStream.write(content.toByteArray())
             }
         }
     }
